@@ -3,12 +3,15 @@ import datetime, json
 import geoip2.database
 import user_agents
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
 # Шлях до GeoLite2 бази
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MMDB_PATH = os.path.join(BASE_DIR, "GeoLite2-City.mmdb")
+MMDB_PATH = os.getenv("GEOIP_MMDB_PATH")
 geoip_reader = geoip2.database.Reader(MMDB_PATH)
 
 @app.route("/store/apps/details")
