@@ -2,5 +2,4 @@ flask
 geoip2
 user-agents
 gunicorn
-python-dotenv
 requests
