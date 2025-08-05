@@ -9,16 +9,24 @@ app = Flask(__name__)
 
 # Шлях до GeoLite2 бази
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-MMDB_PATH = os.getenv("MMDB_PATH", "GeoLite2-City.mmdb")
+MMDB_URL = os.getenv("MMDB_URL")
+MMDB_PATH = "GeoLite2-City.mmdb"
 if not os.path.exists(MMDB_PATH):
     print("GeoLite2-City.mmdb not found, downloading...")
     mmdb_url = os.getenv("MMDB_URL")
     if not mmdb_url:
         raise RuntimeError("MMDB_URL not set in environment variables")
-    r = requests.get(mmdb_url)
+    r = requests.get(mmdb_url, timeout=120)
+    r.raise_for_status()
     with open(MMDB_PATH, "wb") as f:
         f.write(r.content)
-    print("Downloaded GeoLite2-City.mmdb")
+    print("Downloaded GeoLite2-City.mmdb, size:", os.path.getsize(MMDB_PATH))
+    # Перевіряємо початок
+    with open(MMDB_PATH, "rb") as f:
+        head = f.read(10)
+        print("First bytes:", head)
+    assert os.path.getsize(MMDB_PATH) > 10_000_000, "GeoLite2-City.mmdb файл занадто малий!"
+
 
 geoip_reader = geoip2.database.Reader(MMDB_PATH)
 
