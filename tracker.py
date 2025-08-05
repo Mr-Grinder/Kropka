@@ -3,11 +3,7 @@ import datetime, json
 import geoip2.database
 import user_agents
 import os
-from dotenv import load_dotenv
 import requests
-
-
-load_dotenv()
 
 app = Flask(__name__)
 
