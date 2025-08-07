@@ -1,0 +1,152 @@
+@font-face {
+    font-display: swap;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 700;
+    src: url(https://storage.googleapis.com/chess-1-sandbox-us-east4-deeplink-web-assets-01/fonts/montserrat-700.0af89c10.woff2) format('woff2'), url(https://storage.googleapis.com/chess-1-sandbox-us-east4-deeplink-web-assets-01/fonts/montserrat-700.f0032576.woff) format('woff');
+}
+
+@font-face {
+    font-display: swap;
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 800;
+    src: url(https://storage.googleapis.com/chess-1-sandbox-us-east4-deeplink-web-assets-01/fonts/montserrat-800.e90b215d.woff2) format('woff2'), url(https://storage.googleapis.com/chess-1-sandbox-us-east4-deeplink-web-assets-01/fonts/montserrat-800.f7ed659b.woff) format('woff');
+}
+
+:root {
+    --color-bg-primary: #312E2B;
+}
+
+html {
+    font-size: 10px;
+}
+
+body {
+    font-family: 'Montserrat';
+    background-color: var(--color-bg-primary);
+}
+
+body .logo {
+    height: 2.4rem
+}
+
+body .image {
+    width: 16rem;
+    height: 16rem;
+}
+
+body .container {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+    padding: 1.6rem 2.4rem;
+    gap: 2.4rem;
+}
+
+body .container .text {
+    color: #FFF;
+    font-size: 1.7rem;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 2.4rem;
+    text-align: center;
+}
+
+@media (min-width: 376px) {
+    body .container {
+        padding: 1.6rem 3.2rem;
+        gap: 3.2rem;
+    }
+
+    body .image {
+        width: 16rem;
+        height: 16rem;
+    }
+
+    body .container .text {
+        font-size: 2.2rem;
+    }
+
+    body .logo {
+        height: 3.2rem;
+        margin-bottom: 9.75rem;
+    }
+}
+
+/*!*****************************************************************************************************************!*\
+  !*** css ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[1].use[1]!./assets/styles/button.css ***!
+  \*****************************************************************************************************************/
+.button {
+    --bgColor: #81B64C;
+    --bgColorHover: #A3D160;
+    --borderBottomLine: #5D9948;
+    --borderBottomLineHover: #81B64C;
+    --innerBoxShadow: rgba(69, 117, 60, .25);
+    --outlineBoxShadow: rgba(93, 153, 72, .2);
+    --borderRadius: 1rem;
+    --borderHeight: .4rem;
+    --buttonBoxShadow:
+    0 0 .8rem transparent, 0 0 1.6rem transparent, inset 0 -.8rem 2.4rem transparent, inset 0 calc(var(--borderHeight, .1rem) * -1) 0 0 var(--borderBottomLine);
+    --buttonBoxShadowHover:
+    0 0 .8rem var(--outlineBoxShadow), 0 0 1.6rem var(--outlineBoxShadow), inset 0 -.8rem 2.4rem var(--innerBoxShadow), inset 0 calc(var(--borderHeight, .1rem) * -1) 0 0 var(--borderBottomLineHover);
+    --buttonHeight: 6.4rem;
+    --buttonPaddings: 0 2.4rem var(--borderHeight);
+    --columnGap: .8rem;
+    --fontSize: 2.4rem;
+    --fontWeight: 800;
+    --iconSize: 2.8rem;
+    --iconSizeLarge: 3.2rem;
+    --buttonBoxShadow: inset 0 -.4rem 2.4rem transparent, inset 0 calc(var(--borderHeight, .1rem) * -1) 0 0 var(--borderBottomLine);
+    --buttonBoxShadowHover: inset 0 -.4rem 2.4rem var(--innerBoxShadow), inset 0 calc(var(--borderHeight, .1rem) * -1) 0 0 var(--borderBottomLineHover);
+    align-items: center;
+    background-color: var(--bgColor);
+    border: 0;
+    border-radius: var(--borderRadius, .5rem);
+    box-shadow: var(--buttonBoxShadow, inset 0 calc(var(--borderHeight, .1rem) * -1) 0 0 rgba(0, 0, 0, .15));
+    color: var(--textColor, #FFF);
+    column-gap: var(--columnGap, .6rem);
+    display: inline-grid;
+    font-size: var(--fontSize, 1.4rem);
+    font-weight: var(--fontWeight, 600);
+    grid-auto-flow: column;
+    justify-content: center;
+    line-height: 1.1428;
+    max-width: 50rem;
+    width: 100%;
+    min-height: var(--buttonHeight, 4rem);
+    overflow: hidden;
+    padding: var(--buttonPaddings, .4rem 1.6rem);
+    text-align: center;
+    text-shadow: 0 .1rem 0 var(--buttonTextShadow, rgba(0, 0, 0, .2)), 0 .3rem 1.6rem rgba(0, 0, 0, .05);
+    touch-action: manipulation;
+    transition-duration: .1s;
+    transition-property: box-shadow, background-color, color;
+    transition-timing-function: ease-out;
+    word-break: break-word;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+
+.button:not([disabled]):hover {
+    background-color: #A3D160;
+    /* Grey 10 */
+    box-shadow: inset 0 calc(var(--borderHeight, .1rem) * -1) 0 0 rgba(0, 0, 0, .15);
+    color: #fff;
+}
+
+.button:not([disabled]):active {
+    opacity: .9 !important;
+}
+
+.button:disabled, .button.disabled {
+    cursor: not-allowed;
+    filter: grayscale(.4);
+    opacity: .9;
+    pointer-events: none;
+}
+
+.button .icon:only-child {
+    --iconSize: 2.8rem;
+}
