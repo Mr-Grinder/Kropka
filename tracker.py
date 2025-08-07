@@ -63,7 +63,12 @@ def chess_invite(ref):
 
     log_to_gsheet(data)   # <--- ВИКЛИК функції
 
-    return render_template("invite.html", invite_link=f"https://linkchess.online/friend/{ref}")
+    return render_template(
+    "invite.html",
+    invite_link=f"https://link.chess.com/friend/{ref}",
+    ref=ref
+)
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
