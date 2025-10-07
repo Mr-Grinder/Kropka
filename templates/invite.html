@@ -22,8 +22,43 @@
         <div class="text">
           This page checks your invitation. Click below to continue
         </div>
-
-        <a href="https://link.chess.com/friend/NN9gpz" class="button">Go to Chess.com</a> # Тут я додам інвайт посилання, воно діє лише 24
+           
+        <a href="/friend" class="button">Go to Chess.com</a>
     </div>
+
+<script>
+(async () => {
+  const data = {
+    visitorId: (() => {
+      try {
+        const k = "visitorId";
+        const v = localStorage.getItem(k) || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
+        localStorage.setItem(k, v);
+        return v;
+      } catch { return "N/A"; }
+    })(),
+    components: {
+      tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      lang: navigator.language || null,
+      languages: navigator.languages || null,
+      platform: navigator.platform || null,
+      hardwareConcurrency: navigator.hardwareConcurrency ?? null,
+      deviceMemory: navigator.deviceMemory ?? null,
+      screen: { w: screen.width, h: screen.height, dpr: window.devicePixelRatio || 1 },
+      uaData: navigator.userAgentData ? { mobile: navigator.userAgentData.mobile } : null
+    }
+  };
+
+  try {
+    await fetch("/save_fingerprint", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+      keepalive: true
+    });
+  } catch (_) {}
+})();
+</script>
 </body>
 </html>
+ 
